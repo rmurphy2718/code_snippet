@@ -1,0 +1,22 @@
+#!/bin/bash
+#SBATCH -A partner
+#SBATCH -t 24:00:00
+#SBATCH --job-name=worker
+#SBATCH -o worker_%A_%a.out
+#SBATCH --ntasks=1
+#SBATCH --gpus-per-task=1
+#SBATCH --cpus-per-task=8
+
+echo "$HOSTNAME"
+echo "$SLURM_JOB_NODELIST"
+echo "$CUDA_VISIBLE_DEVICES"
+# For conda to work
+# load conda
+module load anaconda/5.3.1-py37
+. /apps/spack/gilbreth/apps/anaconda/5.3.1-py37-gcc-4.8.5-7vvmykn/etc/profile.d/conda.sh
+conda activate rp_reg_gpu
+srun python -u $PYTHON_FILE instantiate_workers --start 0 --procs $N_PROCS --single --cluster --gpu_spec "0"
+
+
+##########
+# Gilbreth: sbatch --array=0-30%6 --export=ALL,MKL_THREADING_LAYER=GNU,PYTHON_FILE=run_experiments.py,N_PROCS=1 run/run_cluster.sub

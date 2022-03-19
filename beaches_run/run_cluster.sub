@@ -1,0 +1,23 @@
+#!/bin/bash
+#SBATCH -t 24:00:00
+#SBATCH --job-name=worker
+#SBATCH -o worker_%A_%a.out
+#SBATCH --ntasks=1
+#SBATCH --gpus-per-task=1
+#SBATCH --cpus-per-task=4
+
+
+echo "$HOSTNAME"
+echo "$SLURM_JOB_NODELIST"
+echo "$CUDA_VISIBLE_DEVICES"
+# For conda to work
+. /u/ml00_s/murph213/anaconda3/etc/profile.d/conda.sh    # I may need to change this to 5.1.0-py36
+conda activate rp_reg_gpu
+echo "I am about to run python"
+echo $PYTHON_FILE
+srun python -u $PYTHON_FILE instantiate_workers --start 0 --procs $N_PROCS --single --cluster --gpu_spec "0"
+
+
+##########
+# sbatch --export=ALL,PYTHON_FILE=run_experiments.py,N_PROCS=4 run/run_cluster.sub
+# #SBATCH --array=0-40%5
